@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { CodeEditor } from "@/components/ui/code-editor"
+import { LanguageSelector } from "@/components/ui/language-selector"
 import {
 	LeaderboardRowCode,
 	LeaderboardRowLang,
@@ -47,7 +49,11 @@ const LEADERBOARD_ROWS: Array<{
 
 export default function Home() {
 	const [code, setCode] = useState("")
+	const [detectedLang, setDetectedLang] = useState("plaintext")
+	const [selectedLang, setSelectedLang] = useState<string | null>(null)
+
 	const isEmpty = code.trim().length === 0
+	const activeLang = selectedLang ?? detectedLang
 
 	return (
 		<main className="mx-auto w-full max-w-[960px] px-10 py-20">
@@ -68,26 +74,26 @@ export default function Home() {
 			<section className="flex flex-col items-center gap-4">
 				<div className="w-[780px] overflow-hidden border border-border-primary bg-bg-input">
 					{/* Window chrome */}
-					<div className="flex h-10 w-full items-center border-b border-border-primary px-4">
+					<div className="flex h-10 w-full items-center justify-between border-b border-border-primary px-4">
 						<div className="flex items-center gap-2">
 							<span className="size-3 rounded-full bg-accent-red" />
 							<span className="size-3 rounded-full bg-accent-amber" />
 							<span className="size-3 rounded-full bg-accent-green" />
 						</div>
+						{/* Language selector in the window chrome */}
+						<LanguageSelector
+							detectedLang={detectedLang}
+							selectedLang={selectedLang}
+							onSelect={setSelectedLang}
+						/>
 					</div>
 
-					{/* Textarea */}
-					<textarea
+					{/* Editor with syntax highlighting */}
+					<CodeEditor
 						value={code}
-						onChange={(e) => setCode(e.target.value)}
-						placeholder="// paste your code here"
-						spellCheck={false}
-						className={[
-							"h-[320px] w-full resize-none bg-transparent p-4",
-							"font-mono text-[12px] leading-6 text-text-primary",
-							"placeholder:text-text-tertiary",
-							"focus:outline-none",
-						].join(" ")}
+						onChange={setCode}
+						activeLang={activeLang}
+						onDetect={setDetectedLang}
 					/>
 				</div>
 

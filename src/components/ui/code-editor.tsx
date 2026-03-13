@@ -5,6 +5,15 @@ import { detectLanguage } from "@/lib/language-detector"
 import { highlight } from "@/lib/shiki-client"
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+// Width of the line-number gutter (matches CodeBlockBody in code-block.tsx)
+const GUTTER_WIDTH = 40 // px — w-10
+
+export const CODE_MAX_LENGTH = 10_000
+
+// ---------------------------------------------------------------------------
 // Props
 // ---------------------------------------------------------------------------
 
@@ -13,6 +22,7 @@ type CodeEditorProps = {
 	onChange: (code: string) => void
 	activeLang: string
 	onDetect: (lang: string) => void
+	maxLength?: number
 	className?: string
 }
 
@@ -20,11 +30,27 @@ type CodeEditorProps = {
 // Component
 // ---------------------------------------------------------------------------
 
-export function CodeEditor({ value, onChange, activeLang, onDetect, className }: CodeEditorProps) {
+export function CodeEditor({
+	value,
+	onChange,
+	activeLang,
+	onDetect,
+	maxLength = CODE_MAX_LENGTH,
+	className,
+}: CodeEditorProps) {
 	const [highlightedHtml, setHighlightedHtml] = useState("")
 	const [isReady, setIsReady] = useState(false)
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
+	const gutterRef = useRef<HTMLDivElement>(null)
+	const overlayRef = useRef<HTMLDivElement>(null)
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+	const lineCount = value ? value.split("\n").length : 1
+	const lineNumbers = Array.from({ length: lineCount }, (_, i) => i + 1)
+
+	const charCount = value.length
+	const isOverLimit = charCount > maxLength
+	const isNearLimit = !isOverLimit && charCount > maxLength * 0.9
 
 	// Run detection + highlight with debounce
 	useEffect(() => {
@@ -58,62 +84,105 @@ export function CodeEditor({ value, onChange, activeLang, onDetect, className }:
 		}
 	}, [value, activeLang, onDetect])
 
-	// Sync textarea scroll to overlay
-	const overlayRef = useRef<HTMLDivElement>(null)
-
+	// Sync gutter + overlay scroll with textarea
 	function handleScroll() {
-		if (overlayRef.current && textareaRef.current) {
-			overlayRef.current.scrollTop = textareaRef.current.scrollTop
-			overlayRef.current.scrollLeft = textareaRef.current.scrollLeft
+		if (!textareaRef.current) return
+		const { scrollTop, scrollLeft } = textareaRef.current
+		if (overlayRef.current) {
+			overlayRef.current.scrollTop = scrollTop
+			overlayRef.current.scrollLeft = scrollLeft
+		}
+		if (gutterRef.current) {
+			gutterRef.current.scrollTop = scrollTop
 		}
 	}
 
 	return (
-		<div className={["relative h-[320px] w-full overflow-hidden", className ?? ""].join(" ")}>
-			{/* Overlay — highlighted HTML (pointer-events: none) */}
+		<div className={["relative flex h-[320px] w-full overflow-hidden", className ?? ""].join(" ")}>
+			{/* Line numbers gutter */}
 			<div
-				ref={overlayRef}
+				ref={gutterRef}
 				aria-hidden="true"
 				className={[
-					"pointer-events-none absolute inset-0 overflow-hidden",
-					"p-4 font-mono text-[12px] leading-6",
-					"transition-opacity duration-150",
-					isReady && value.length > 0 ? "opacity-100" : "opacity-0",
-					// Strip Shiki's background so our bg-bg-input shows through
-					"[&_pre]:!bg-transparent [&_pre]:leading-6 [&_pre]:font-mono [&_pre]:text-[12px]",
+					"pointer-events-none shrink-0 overflow-hidden",
+					"flex flex-col",
+					"border-r border-border-primary bg-bg-surface",
+					"px-[10px] py-4",
 				].join(" ")}
-				// biome-ignore lint/security/noDangerouslySetInnerHtml: trusted Shiki output
-				dangerouslySetInnerHTML={{ __html: highlightedHtml }}
-			/>
+				style={{ width: GUTTER_WIDTH }}
+			>
+				{lineNumbers.map((n) => (
+					<span
+						key={n}
+						className="block text-right font-mono text-[12px] leading-6 text-text-tertiary"
+					>
+						{n}
+					</span>
+				))}
+			</div>
 
-			{/* Placeholder — shown when no value and ready */}
-			{value.length === 0 && (
+			{/* Right side: overlay + textarea stacked */}
+			<div className="relative min-w-0 flex-1">
+				{/* Overlay — highlighted HTML */}
 				<div
+					ref={overlayRef}
 					aria-hidden="true"
-					className="pointer-events-none absolute inset-0 p-4 font-mono text-[12px] leading-6 text-text-tertiary"
-				>
-					{"// paste your code here"}
-				</div>
-			)}
+					className={[
+						"pointer-events-none absolute inset-0 overflow-hidden",
+						"p-4 font-mono text-[12px] leading-6",
+						"transition-opacity duration-150",
+						isReady && value.length > 0 ? "opacity-100" : "opacity-0",
+						// Strip Shiki's background so our bg-bg-input shows through
+						"[&_pre]:!bg-transparent [&_pre]:m-0 [&_pre]:leading-6 [&_pre]:font-mono [&_pre]:text-[12px]",
+					].join(" ")}
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: trusted Shiki output
+					dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+				/>
 
-			{/* Textarea — invisible but receives input */}
-			<textarea
-				ref={textareaRef}
-				value={value}
-				onChange={(e) => onChange(e.target.value)}
-				onScroll={handleScroll}
-				spellCheck={false}
-				autoCapitalize="off"
-				autoCorrect="off"
-				autoComplete="off"
-				className={[
-					"absolute inset-0 h-full w-full resize-none bg-transparent",
-					"p-4 font-mono text-[12px] leading-6",
-					// Make text invisible so the overlay shows through
-					"text-transparent caret-text-primary",
-					"focus:outline-none",
-				].join(" ")}
-			/>
+				{/* Placeholder */}
+				{value.length === 0 && (
+					<div
+						aria-hidden="true"
+						className="pointer-events-none absolute inset-0 p-4 font-mono text-[12px] leading-6 text-text-tertiary"
+					>
+						{"// paste your code here"}
+					</div>
+				)}
+
+				{/* Textarea — invisible, captures input */}
+				<textarea
+					ref={textareaRef}
+					value={value}
+					onChange={(e) => onChange(e.target.value)}
+					onScroll={handleScroll}
+					spellCheck={false}
+					autoCapitalize="off"
+					autoCorrect="off"
+					autoComplete="off"
+					className={[
+						"absolute inset-0 h-full w-full resize-none bg-transparent",
+						"p-4 font-mono text-[12px] leading-6",
+						"text-transparent caret-text-primary",
+						"focus:outline-none",
+					].join(" ")}
+				/>
+
+				{/* Character counter */}
+				<div
+					aria-live="polite"
+					className={[
+						"pointer-events-none absolute right-3 bottom-2",
+						"font-mono text-[11px] tabular-nums",
+						isOverLimit
+							? "text-accent-red"
+							: isNearLimit
+								? "text-accent-amber"
+								: "text-text-tertiary",
+					].join(" ")}
+				>
+					{charCount.toLocaleString("en-US")}/{maxLength.toLocaleString("en-US")}
+				</div>
+			</div>
 		</div>
 	)
 }

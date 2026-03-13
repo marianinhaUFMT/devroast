@@ -42,7 +42,6 @@ export function ScoreRing({ score, maxScore = 10, className }: ScoreRingProps) {
 					background: conicGradient,
 					WebkitMask: maskGradient,
 					mask: maskGradient,
-					transform: "rotate(-90deg)",
 				}}
 			/>
 

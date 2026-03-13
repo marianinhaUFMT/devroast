@@ -16,7 +16,6 @@ export function ScoreRing({ score, maxScore = 10, className }: ScoreRingProps) {
 
 	const conicGradient = [
 		`conic-gradient(`,
-		`from -90deg,`,
 		`#EF4444 0deg,`,
 		`#F59E0B ${filledDeg * 0.5}deg,`,
 		`#10B981 ${filledDeg}deg,`,
@@ -43,6 +42,7 @@ export function ScoreRing({ score, maxScore = 10, className }: ScoreRingProps) {
 					background: conicGradient,
 					WebkitMask: maskGradient,
 					mask: maskGradient,
+					transform: "rotate(-90deg)",
 				}}
 			/>
 

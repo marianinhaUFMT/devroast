@@ -10,10 +10,6 @@ const codeBlockRoot = tv({
 	base: ["overflow-hidden border border-border-primary", "bg-bg-input font-mono"],
 })
 
-const codeBlockHeader = tv({
-	base: ["flex h-10 items-center gap-3", "border-b border-border-primary px-4"],
-})
-
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
@@ -22,22 +18,6 @@ type CodeBlockRootProps = ComponentProps<"div">
 
 export function CodeBlockRoot({ className, ...props }: CodeBlockRootProps) {
 	return <div {...props} className={codeBlockRoot({ className })} />
-}
-
-type CodeBlockHeaderProps = ComponentProps<"div"> & {
-	filename?: string
-}
-
-export function CodeBlockHeader({ filename, className, ...props }: CodeBlockHeaderProps) {
-	return (
-		<div {...props} className={codeBlockHeader({ className })}>
-			<span className="size-[10px] rounded-full bg-accent-red" />
-			<span className="size-[10px] rounded-full bg-accent-amber" />
-			<span className="size-[10px] rounded-full bg-accent-green" />
-			<span className="flex-1" />
-			{filename && <span className="font-mono text-xs text-text-tertiary">{filename}</span>}
-		</div>
-	)
 }
 
 type CodeBlockBodyProps = {

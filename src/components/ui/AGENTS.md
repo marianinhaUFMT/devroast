@@ -198,7 +198,7 @@ import { CardRoot, CardTitle, CardDescription, CardBadge } from "@/components/ui
 | `card.tsx` | `CardRoot`, `CardBadge`, `CardTitle`, `CardDescription` |
 | `navbar.tsx` | `NavbarRoot`, `NavbarLogo`, `NavbarActions`, `NavLink` |
 | `leaderboard-row.tsx` | `LeaderboardRowRoot`, `LeaderboardRowRank`, `LeaderboardRowScore`, `LeaderboardRowCode`, `LeaderboardRowLang` |
-| `code-block.tsx` | `CodeBlockRoot`, `CodeBlockHeader`, `CodeBlockBody` (async server component) |
+| `code-block.tsx` | `CodeBlockRoot`, `CodeBlockBody` (async server component) |
 
 ---
 

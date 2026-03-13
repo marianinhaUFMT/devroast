@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { CardBadge, CardDescription, CardRoot, CardTitle } from "@/components/ui/card"
-import { CodeBlockBody, CodeBlockHeader, CodeBlockRoot } from "@/components/ui/code-block"
+import { CodeBlockBody, CodeBlockRoot } from "@/components/ui/code-block"
 import { DiffLine } from "@/components/ui/diff-line"
 import { ScoreRing } from "@/components/ui/score-ring"
 
@@ -146,7 +146,15 @@ export default async function RoastPage({ params }: Props) {
 					<span className="font-mono text-sm font-bold text-text-primary">your_code</span>
 				</div>
 				<CodeBlockRoot>
-					<CodeBlockHeader filename={`snippet.${submission.lang}`} />
+					<div className="flex h-10 items-center gap-3 border-b border-border-primary px-4">
+						<span className="size-[10px] rounded-full bg-accent-red" />
+						<span className="size-[10px] rounded-full bg-accent-amber" />
+						<span className="size-[10px] rounded-full bg-accent-green" />
+						<span className="flex-1" />
+						<span className="font-mono text-xs text-text-tertiary">
+							{`snippet.${submission.lang}`}
+						</span>
+					</div>
 					<CodeBlockBody code={submission.code} lang={submission.lang} />
 				</CodeBlockRoot>
 			</section>

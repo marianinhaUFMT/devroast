@@ -1,26 +1,71 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* ─── Tailwind Theme ─────────────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+	/* Fonts */
+	--font-sans:
+		ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+		"Noto Color Emoji";
+	--font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+	/* Backgrounds */
+	--color-bg-page: #0a0a0a;
+	--color-bg-surface: #0f0f0f;
+	--color-bg-elevated: #1a1a1a;
+	--color-bg-input: #111111;
+
+	/* Borders */
+	--color-border-primary: #2a2a2a;
+	--color-border-secondary: #252525;
+	--color-border-focus: #10b981;
+
+	/* Text */
+	--color-text-primary: #fafafa;
+	--color-text-secondary: #6b7280;
+	--color-text-tertiary: #4b5563;
+	--color-text-muted: #525252;
+
+	/* Accents */
+	--color-accent-green: #10b981;
+	--color-accent-red: #ef4444;
+	--color-accent-amber: #f59e0b;
+	--color-accent-cyan: #06b6d4;
+
+	/* Semantic */
+	--color-primary: #ff8400;
+	--color-primary-foreground: #111111;
+	--color-destructive: #ff5c33;
+
+	/* Syntax highlighting */
+	--color-syn-keyword: #c678dd;
+	--color-syn-function: #61afef;
+	--color-syn-string: #e5c07b;
+	--color-syn-number: #d19a66;
+	--color-syn-property: #98c379;
+	--color-syn-operator: #abb2bf;
+	--color-syn-type: #e5c07b;
+	--color-syn-variable: #e06c75;
+
+	/* Border radius */
+	--radius-none: 0px;
+	--radius-m: 16px;
+	--radius-pill: 9999px;
+
+	/* Spacing */
+	--spacing-xs: 4px;
+	--spacing-sm: 8px;
+	--spacing-md: 16px;
+	--spacing-lg: 24px;
+	--spacing-xl: 40px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ─── Base ───────────────────────────────────────────────────────────── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+	/* biome-ignore lint/correctness/noUnknownFunction: theme() is a Tailwind v4 CSS function */
+	background-color: theme(--color-bg-page);
+	/* biome-ignore lint/correctness/noUnknownFunction: theme() is a Tailwind v4 CSS function */
+	color: theme(--color-text-primary);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }

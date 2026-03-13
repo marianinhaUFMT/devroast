@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DevRoast
+
+> paste your code. get roasted.
+
+DevRoast is a web app that brutally rates your code — from "brutally honest" to "full roast mode". Paste any snippet, get a shame score, and see how you rank on the leaderboard.
+
+Built during **NLW (Next Level Week)** by [Rocketseat](https://rocketseat.com.br), Brazil's largest developer community.
+
+---
+
+## Features
+
+- **Code input** — paste any snippet and submit for analysis
+- **Roast modes** — toggle between honest feedback and maximum sarcasm
+- **Shame score** — get a rating from 0 to 10 (lower = worse code)
+- **Leaderboard** — the worst code on the internet, ranked by shame
+
+## Tech Stack
+
+| Tool | Role |
+|------|------|
+| [Next.js 16](https://nextjs.org) (App Router) | Framework |
+| [React 19](https://react.dev) | UI |
+| [TypeScript 5](https://www.typescriptlang.org) | Type safety |
+| [Tailwind CSS 4](https://tailwindcss.com) | Styling |
+| [tailwind-variants](https://www.tailwind-variants.org) | Variant logic |
+| [Base UI](https://base-ui.com) | Headless interactive components |
+| [Shiki](https://shiki.style) | Syntax highlighting |
+| [Biome](https://biomejs.dev) | Linting + formatting |
 
 ## Getting Started
 
-First, run the development server:
+**Requirements:** Node.js 22+ and pnpm.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# install dependencies
+pnpm install
+
+# run the dev server
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm build   # production build
+pnpm check   # lint + format (auto-fix)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+```
+src/
+├── app/
+│   ├── globals.css      # design tokens (@theme)
+│   ├── layout.tsx       # root layout + navbar
+│   └── page.tsx         # homepage
+└── components/
+    └── ui/              # all UI components
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built with during **NLW** — [Rocketseat](https://rocketseat.com.br)

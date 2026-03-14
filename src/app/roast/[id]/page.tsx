@@ -1,6 +1,7 @@
 import { asc, eq } from "drizzle-orm"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { connection } from "next/server"
 
 import { CardBadge, CardDescription, CardRoot, CardTitle } from "@/components/ui/card"
 import { CodeBlockBody, CodeBlockRoot } from "@/components/ui/code-block"
@@ -21,6 +22,7 @@ type Props = {
 
 export default async function RoastPage({ params }: Props) {
 	const { id } = await params
+	await connection()
 
 	const roast = await db.query.submissions.findFirst({
 		where: eq(submissions.id, id),

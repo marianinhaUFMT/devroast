@@ -40,13 +40,14 @@ export async function submitCode(
 	}
 
 	// ── 3. Insert all rows in a transaction ───────────────────────────────
+	const trimmedCode = code.trimEnd()
 	const result = await db.transaction(async (tx) => {
 		const [submission] = await tx
 			.insert(submissions)
 			.values({
-				code,
+				code: trimmedCode,
 				lang: language,
-				lineCount: code.split("\n").length,
+				lineCount: trimmedCode.split("\n").length,
 				roastMode: roastMode ? "roast" : "honest",
 				isPublic: true,
 				verdict: output.verdict,

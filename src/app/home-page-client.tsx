@@ -5,7 +5,7 @@ import { useState, useTransition } from "react"
 
 import { submitCode } from "@/app/actions/submit-code"
 import { Button } from "@/components/ui/button"
-import { CodeEditor } from "@/components/ui/code-editor"
+import { CODE_MAX_LENGTH, CodeEditor } from "@/components/ui/code-editor"
 import { LanguageSelector } from "@/components/ui/language-selector"
 import { Toggle } from "@/components/ui/toggle"
 
@@ -30,6 +30,7 @@ export function HomePageClient({
 	const [isPending, startTransition] = useTransition()
 
 	const isEmpty = code.trim().length === 0
+	const isOverLimit = code.length > CODE_MAX_LENGTH
 	const activeLang = selectedLang ?? detectedLang
 
 	function handleSubmit() {
@@ -99,7 +100,7 @@ export function HomePageClient({
 					<Button
 						variant="primary"
 						size="md"
-						disabled={isEmpty || isPending}
+						disabled={isEmpty || isOverLimit || isPending}
 						onClick={handleSubmit}
 					>
 						{isPending ? "$ roasting..." : "$ roast_my_code"}

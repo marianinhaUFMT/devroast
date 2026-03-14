@@ -40,4 +40,30 @@ export const leaderboardRouter = createTRPCRouter({
 			total: stats?.total ?? 0,
 		}
 	}),
+
+	fullList: baseProcedure.query(async () => {
+		const [rows, [stats]] = await Promise.all([
+			db
+				.select({
+					id: submissions.id,
+					score: submissions.score,
+					lang: submissions.lang,
+					code: submissions.code,
+				})
+				.from(submissions)
+				.where(eq(submissions.isPublic, true))
+				.orderBy(asc(submissions.score))
+				.limit(20),
+			db
+				.select({ total: count(), avgScore: avg(submissions.score) })
+				.from(submissions)
+				.where(eq(submissions.isPublic, true)),
+		])
+
+		return {
+			rows: rows.map((row, i) => ({ ...row, rank: i + 1 })),
+			total: stats?.total ?? 0,
+			avgScore: stats?.avgScore ? Number(stats.avgScore) : 0,
+		}
+	}),
 })

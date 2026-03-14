@@ -1,10 +1,14 @@
+import { asc, eq } from "drizzle-orm"
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 
 import { CardBadge, CardDescription, CardRoot, CardTitle } from "@/components/ui/card"
 import { CodeBlockBody, CodeBlockRoot } from "@/components/ui/code-block"
 import { DiffLine } from "@/components/ui/diff-line"
 import { ScoreRing } from "@/components/ui/score-ring"
-import { STATIC_ROAST, VERDICT_COLOR, VERDICT_LABEL } from "@/db/roast"
+import { db } from "@/db"
+import { VERDICT_COLOR, VERDICT_LABEL } from "@/db/roast"
+import { submissionDiffLines, submissionIssues, submissions } from "@/db/schema"
 
 export const metadata: Metadata = {
 	title: "Roast Result | DevRoast",
@@ -17,17 +21,27 @@ type Props = {
 
 export default async function RoastPage({ params }: Props) {
 	const { id } = await params
-	// Once DB is live: const roast = await db.query.submissions.findFirst({ where: eq(submissions.id, id) })
-	// For now, always return static data regardless of the UUID param
-	void id
-	const roast = STATIC_ROAST
+
+	const roast = await db.query.submissions.findFirst({
+		where: eq(submissions.id, id),
+		with: {
+			issues: { orderBy: asc(submissionIssues.order) },
+			diffLines: { orderBy: asc(submissionDiffLines.lineNumber) },
+		},
+	})
+
+	if (!roast) notFound()
+
+	const score = Number(roast.score)
+	const lineCount = roast.lineCount ?? roast.code.split("\n").length
+	const lang = roast.lang ?? "plaintext"
 	const verdictVariant = VERDICT_COLOR[roast.verdict]
 
 	return (
 		<main className="mx-auto w-full max-w-[960px] px-20 py-10">
 			{/* ── Score Hero ──────────────────────────────────────────────────── */}
 			<section className="flex items-center gap-12 pb-10">
-				<ScoreRing score={roast.score} />
+				<ScoreRing score={score} />
 
 				<div className="flex flex-1 flex-col gap-4">
 					{/* Verdict badge */}
@@ -47,9 +61,9 @@ export default async function RoastPage({ params }: Props) {
 
 					{/* Meta */}
 					<div className="flex items-center gap-4">
-						<span className="font-mono text-xs text-text-tertiary">{`lang: ${roast.lang}`}</span>
+						<span className="font-mono text-xs text-text-tertiary">{`lang: ${lang}`}</span>
 						<span className="font-mono text-xs text-text-tertiary">·</span>
-						<span className="font-mono text-xs text-text-tertiary">{`${roast.lineCount} lines`}</span>
+						<span className="font-mono text-xs text-text-tertiary">{`${lineCount} lines`}</span>
 					</div>
 
 					{/* Share button */}
@@ -74,7 +88,7 @@ export default async function RoastPage({ params }: Props) {
 				</div>
 
 				<CodeBlockRoot>
-					<CodeBlockBody code={roast.code} lang={roast.lang} />
+					<CodeBlockBody code={roast.code} lang={lang} />
 				</CodeBlockRoot>
 			</section>
 
@@ -111,7 +125,7 @@ export default async function RoastPage({ params }: Props) {
 					{/* Diff header */}
 					<div className="flex h-10 items-center border-b border-border-primary px-4">
 						<span className="font-mono text-xs font-medium text-text-secondary">
-							{`your_code.${roast.lang} → improved_code.${roast.lang}`}
+							{`your_code.${lang} → improved_code.${lang}`}
 						</span>
 					</div>
 

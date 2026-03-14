@@ -29,7 +29,7 @@ export async function submitCode(
 
 	// ── 2. Call Gemini ────────────────────────────────────────────────────
 	const { output } = await generateText({
-		model: groq("llama-3.3-70b-versatile"),
+		model: groq("meta-llama/llama-4-scout-17b-16e-instruct"),
 		output: Output.object({ schema: roastSchema }),
 		prompt: buildPrompt(code, language, roastMode),
 	})

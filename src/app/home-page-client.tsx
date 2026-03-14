@@ -1,8 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useState, useTransition } from "react"
+
+import { submitCode } from "@/app/actions/submit-code"
 import { Button } from "@/components/ui/button"
-import { CodeEditor } from "@/components/ui/code-editor"
+import { CODE_MAX_LENGTH, CodeEditor } from "@/components/ui/code-editor"
 import { LanguageSelector } from "@/components/ui/language-selector"
 import { Toggle } from "@/components/ui/toggle"
 
@@ -17,12 +20,34 @@ export function HomePageClient({
 	statsSlot: React.ReactNode
 	leaderboardSlot: React.ReactNode
 }) {
+	const router = useRouter()
+
 	const [code, setCode] = useState("")
 	const [detectedLang, setDetectedLang] = useState("plaintext")
 	const [selectedLang, setSelectedLang] = useState<string | null>(null)
+	const [roastMode, setRoastMode] = useState(true)
+	const [error, setError] = useState<string | null>(null)
+	const [isPending, startTransition] = useTransition()
 
 	const isEmpty = code.trim().length === 0
+	const isOverLimit = code.length > CODE_MAX_LENGTH
 	const activeLang = selectedLang ?? detectedLang
+
+	function handleSubmit() {
+		if (!code.trim()) {
+			setError("paste some code first")
+			return
+		}
+		setError(null)
+		startTransition(async () => {
+			try {
+				const { id } = await submitCode(code, activeLang, roastMode)
+				router.push(`/roast/${id}`)
+			} catch (e) {
+				setError(e instanceof Error ? e.message : "something went wrong")
+			}
+		})
+	}
 
 	return (
 		<main className="mx-auto w-full max-w-[960px] px-10 py-20">
@@ -67,15 +92,23 @@ export function HomePageClient({
 				{/* Actions bar */}
 				<div className="flex w-[780px] items-center justify-between">
 					<div className="flex items-center gap-4">
-						<Toggle defaultChecked />
+						<Toggle checked={roastMode} onCheckedChange={setRoastMode} />
 						<span className="font-mono text-xs text-text-tertiary">
-							{"// maximum sarcasm enabled"}
+							{roastMode ? "// maximum sarcasm enabled" : "// honest mode enabled"}
 						</span>
 					</div>
-					<Button variant="primary" size="md" disabled={isEmpty}>
-						$ roast_my_code
+					<Button
+						variant="primary"
+						size="md"
+						disabled={isEmpty || isOverLimit || isPending}
+						onClick={handleSubmit}
+					>
+						{isPending ? "$ roasting..." : "$ roast_my_code"}
 					</Button>
 				</div>
+
+				{/* Inline error */}
+				{error && <p className="w-[780px] font-mono text-xs text-accent-red">{error}</p>}
 
 				{/* Footer stats — injected from Server Component via slot */}
 				{statsSlot}

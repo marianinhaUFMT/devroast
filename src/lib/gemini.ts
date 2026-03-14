@@ -14,7 +14,7 @@ export const roastSchema = z.object({
 		"needs_serious_help",
 		"delete_this_now",
 	]),
-	roastQuote: z.string(),
+	roastQuote: z.string().min(10).max(200),
 	issues: z
 		.array(
 			z.object({
@@ -30,10 +30,11 @@ export const roastSchema = z.object({
 			z.object({
 				type: z.enum(["removed", "added", "context"]),
 				content: z.string(),
-				lineNumber: z.number().int(),
+				lineNumber: z.number().int().min(1),
 			})
 		)
-		.min(1),
+		.min(1)
+		.max(20),
 })
 
 export type RoastOutput = z.infer<typeof roastSchema>

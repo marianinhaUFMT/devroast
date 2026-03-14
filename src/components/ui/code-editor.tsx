@@ -44,7 +44,7 @@ export function CodeEditor({
 	const overlayRef = useRef<HTMLDivElement>(null)
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-	const lineCount = value ? value.split("\n").length : 1
+	const lineCount = value ? value.trimEnd().split("\n").length : 1
 	const lineNumbers = Array.from({ length: lineCount }, (_, i) => i + 1)
 
 	const charCount = value.length

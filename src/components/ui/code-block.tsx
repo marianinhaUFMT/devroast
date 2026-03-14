@@ -28,7 +28,7 @@ type CodeBlockBodyProps = {
 
 export async function CodeBlockBody({ code, lang = "text", className }: CodeBlockBodyProps) {
 	const highlighted = await codeToHtml(code, { lang, theme: "vesper" })
-	const lineCount = code.split("\n").length
+	const lineCount = code.trimEnd().split("\n").length
 	const lineNumbers = Array.from({ length: lineCount }, (_, i) => i + 1)
 
 	return (

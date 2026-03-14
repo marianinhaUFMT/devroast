@@ -4,50 +4,19 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { CodeEditor } from "@/components/ui/code-editor"
 import { LanguageSelector } from "@/components/ui/language-selector"
-import {
-	LeaderboardRowCode,
-	LeaderboardRowLang,
-	LeaderboardRowRank,
-	LeaderboardRowRoot,
-	LeaderboardRowScore,
-} from "@/components/ui/leaderboard-row"
 import { Toggle } from "@/components/ui/toggle"
-
-// ---------------------------------------------------------------------------
-// Static data (leaderboard preview — will be replaced by tRPC later)
-// ---------------------------------------------------------------------------
-
-const LEADERBOARD_ROWS: Array<{
-	rank: number
-	score: string
-	codePreview: string
-	lang: string
-}> = [
-	{
-		rank: 1,
-		score: "1.2",
-		codePreview: 'eval(prompt("enter code"))',
-		lang: "javascript",
-	},
-	{
-		rank: 2,
-		score: "1.8",
-		codePreview: "if (x == true) { return true; }",
-		lang: "typescript",
-	},
-	{
-		rank: 3,
-		score: "2.1",
-		codePreview: "SELECT * FROM users WHERE 1=1",
-		lang: "sql",
-	},
-]
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
-export function HomePageClient({ statsSlot }: { statsSlot: React.ReactNode }) {
+export function HomePageClient({
+	statsSlot,
+	leaderboardSlot,
+}: {
+	statsSlot: React.ReactNode
+	leaderboardSlot: React.ReactNode
+}) {
 	const [code, setCode] = useState("")
 	const [detectedLang, setDetectedLang] = useState("plaintext")
 	const [selectedLang, setSelectedLang] = useState<string | null>(null)
@@ -80,7 +49,6 @@ export function HomePageClient({ statsSlot }: { statsSlot: React.ReactNode }) {
 							<span className="size-3 rounded-full bg-accent-amber" />
 							<span className="size-3 rounded-full bg-accent-green" />
 						</div>
-						{/* Language selector in the window chrome */}
 						<LanguageSelector
 							detectedLang={detectedLang}
 							selectedLang={selectedLang}
@@ -88,7 +56,6 @@ export function HomePageClient({ statsSlot }: { statsSlot: React.ReactNode }) {
 						/>
 					</div>
 
-					{/* Editor with syntax highlighting */}
 					<CodeEditor
 						value={code}
 						onChange={setCode}
@@ -117,66 +84,8 @@ export function HomePageClient({ statsSlot }: { statsSlot: React.ReactNode }) {
 			{/* Divider spacer */}
 			<div className="py-12" />
 
-			{/* ── Leaderboard preview ───────────────────────────────────────── */}
-			<section className="flex flex-col gap-6">
-				{/* Section header */}
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-2">
-						<span className="font-mono text-sm font-bold text-accent-green">{"// "}</span>
-						<span className="font-mono text-sm font-bold text-text-primary">shame_leaderboard</span>
-					</div>
-					<a
-						href="/leaderboard"
-						className="inline-flex cursor-pointer items-center gap-2 border border-border-primary px-3 py-1.5 font-mono text-xs text-text-secondary transition-colors hover:border-border-focus hover:text-accent-green"
-					>
-						$ view_all &gt;&gt;
-					</a>
-				</div>
-
-				{/* Section subtitle */}
-				<p className="font-mono text-[13px] text-text-tertiary">
-					{"// the worst code on the internet, ranked by shame"}
-				</p>
-
-				{/* Table */}
-				<div className="border border-border-primary">
-					{/* Table header */}
-					<div className="flex h-10 items-center border-b border-border-primary bg-bg-surface px-5">
-						<div className="w-[50px] shrink-0">
-							<span className="font-mono text-xs font-medium text-text-tertiary">#</span>
-						</div>
-						<div className="w-[70px] shrink-0">
-							<span className="font-mono text-xs font-medium text-text-tertiary">score</span>
-						</div>
-						<div className="flex-1">
-							<span className="font-mono text-xs font-medium text-text-tertiary">code</span>
-						</div>
-						<div className="w-[100px] shrink-0">
-							<span className="font-mono text-xs font-medium text-text-tertiary">lang</span>
-						</div>
-					</div>
-
-					{/* Rows */}
-					{LEADERBOARD_ROWS.map((row) => (
-						<LeaderboardRowRoot key={row.rank}>
-							<LeaderboardRowRank>{row.rank}</LeaderboardRowRank>
-							<LeaderboardRowScore variant="critical">{row.score}</LeaderboardRowScore>
-							<LeaderboardRowCode>
-								<span className="font-mono text-xs text-text-primary">{row.codePreview}</span>
-							</LeaderboardRowCode>
-							<LeaderboardRowLang>{row.lang}</LeaderboardRowLang>
-						</LeaderboardRowRoot>
-					))}
-				</div>
-
-				{/* Fade hint */}
-				<p className="text-center font-mono text-xs text-text-tertiary">
-					showing top 3 of 2,847 ·{" "}
-					<a href="/leaderboard" className="transition-colors hover:text-text-primary">
-						view full leaderboard &gt;&gt;
-					</a>
-				</p>
-			</section>
+			{/* ── Leaderboard — injected from Server Component via slot ─────── */}
+			{leaderboardSlot}
 		</main>
 	)
 }

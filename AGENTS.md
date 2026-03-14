@@ -48,20 +48,31 @@ pnpm check      # biome lint + format (auto-fix)
 - **Interactive components** (Base UI) — use `"use client"` only where needed
 - **CodeBlock** — `CodeBlockBody` is an `async` server component (Shiki); never import inside `"use client"` files
 - **Content width** — `max-w-[960px] mx-auto`; navbar is full-width in `layout.tsx`
-- **Data** — all static for now, no API
+- **Data** — tRPC v11 + TanStack React Query; see `src/trpc/AGENTS.md` for patterns
+- **Slot pattern** — Server-fetched `ReactNode` passed as prop into Client Components to cross the server/client boundary without prop-drilling (e.g. `statsSlot`, `leaderboardSlot`)
+- **Parallel queries** — always use `Promise.all` for multiple independent DB queries in the same procedure or async Server Component
 
 ## Directory Structure
 
 ```
 src/
 ├── app/
-│   ├── globals.css          # @theme design tokens
-│   ├── layout.tsx           # root layout + navbar
-│   ├── page.tsx             # homepage
-│   └── ui-preview/          # component kitchen sink
-└── components/
-    └── ui/                  # all UI components
-        └── AGENTS.md        # component-level patterns (composition, variants, tokens)
+│   ├── globals.css              # @theme design tokens
+│   ├── layout.tsx               # root layout + navbar + TRPCReactProvider
+│   ├── page.tsx                 # homepage (Server Component)
+│   ├── home-page-client.tsx     # homepage Client Component (editor state)
+│   ├── actions/                 # Next.js Server Actions
+│   ├── api/trpc/[trpc]/         # tRPC fetch adapter route
+│   └── ui-preview/              # component kitchen sink
+├── components/
+│   └── ui/                      # all UI components
+│       └── AGENTS.md            # component-level patterns (composition, variants, tokens)
+├── trpc/
+│   └── AGENTS.md                # tRPC patterns (routers, parallel queries, slot pattern, Suspense)
+└── db/
+    ├── index.ts                 # Drizzle client
+    └── schema.ts                # table definitions
 ```
 
 See `src/components/ui/AGENTS.md` for component-specific rules and the full composition pattern reference.
+See `src/trpc/AGENTS.md` for tRPC router conventions, parallel query pattern, and Suspense/skeleton usage.

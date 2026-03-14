@@ -32,42 +32,50 @@ export async function submitCode(
 		prompt: buildPrompt(code, language, roastMode),
 	})
 
-	// ── 3a. Insert submission (parent) ────────────────────────────────────
-	const [submission] = await db
-		.insert(submissions)
-		.values({
-			code,
-			lang: language,
-			lineCount: code.split("\n").length,
-			roastMode: roastMode ? "roast" : "honest",
-			isPublic: true,
-			verdict: output.verdict,
-			score: String(output.score),
-			roastQuote: output.roastQuote,
-		})
-		.returning({ id: submissions.id })
+	// ── 2a. Guard against unparseable response ────────────────────────────
+	if (!output) {
+		throw new Error("failed to generate roast — try again")
+	}
 
-	// ── 3b. Insert children in parallel ──────────────────────────────────
-	await Promise.all([
-		db.insert(submissionIssues).values(
-			output.issues.map((issue, i) => ({
-				submissionId: submission.id,
-				severity: issue.severity,
-				title: issue.title,
-				description: issue.description,
-				order: i,
-			}))
-		),
-		db.insert(submissionDiffLines).values(
-			output.diffLines.map((line) => ({
-				submissionId: submission.id,
-				type: line.type,
-				content: line.content,
-				lineNumber: line.lineNumber,
-			}))
-		),
-	])
+	// ── 3. Insert all rows in a transaction ───────────────────────────────
+	const result = await db.transaction(async (tx) => {
+		const [submission] = await tx
+			.insert(submissions)
+			.values({
+				code,
+				lang: language,
+				lineCount: code.split("\n").length,
+				roastMode: roastMode ? "roast" : "honest",
+				isPublic: true,
+				verdict: output.verdict,
+				score: String(output.score),
+				roastQuote: output.roastQuote,
+			})
+			.returning({ id: submissions.id })
+
+		await Promise.all([
+			tx.insert(submissionIssues).values(
+				output.issues.map((issue, i) => ({
+					submissionId: submission.id,
+					severity: issue.severity,
+					title: issue.title,
+					description: issue.description,
+					order: i,
+				}))
+			),
+			tx.insert(submissionDiffLines).values(
+				output.diffLines.map((line) => ({
+					submissionId: submission.id,
+					type: line.type,
+					content: line.content,
+					lineNumber: line.lineNumber,
+				}))
+			),
+		])
+
+		return { id: submission.id }
+	})
 
 	// ── 4. Return UUID ────────────────────────────────────────────────────
-	return { id: submission.id }
+	return result
 }

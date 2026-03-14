@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache"
 import { caller } from "@/trpc/server"
 import { CodeBlockBody } from "./code-block"
 import { CollapsibleCode } from "./collapsible-code"
@@ -19,6 +20,8 @@ function scoreVariant(score: string): "critical" | "warning" | "good" {
 // ---------------------------------------------------------------------------
 
 export async function HomeLeaderboard() {
+	"use cache"
+	cacheLife("hours")
 	const { rows, total } = await caller.leaderboard.list()
 
 	return (

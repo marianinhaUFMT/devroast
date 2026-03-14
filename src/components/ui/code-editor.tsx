@@ -39,7 +39,6 @@ export function CodeEditor({
 	className,
 }: CodeEditorProps) {
 	const [highlightedHtml, setHighlightedHtml] = useState("")
-	const [isReady, setIsReady] = useState(false)
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 	const gutterRef = useRef<HTMLDivElement>(null)
 	const overlayRef = useRef<HTMLDivElement>(null)
@@ -66,16 +65,14 @@ export function CodeEditor({
 			// Highlight
 			if (value.length === 0) {
 				setHighlightedHtml("")
-				setIsReady(true)
 				return
 			}
 
 			try {
 				const html = await highlight(value, activeLang)
 				setHighlightedHtml(html)
-				setIsReady(true)
 			} catch {
-				setIsReady(true)
+				// ignore — overlay stays as plaintext
 			}
 		}, 200)
 
@@ -123,21 +120,24 @@ export function CodeEditor({
 
 			{/* Right side: overlay + textarea stacked */}
 			<div className="relative min-w-0 flex-1">
-				{/* Overlay — highlighted HTML */}
+				{/* Overlay — highlighted HTML or plaintext fallback */}
 				<div
 					ref={overlayRef}
 					aria-hidden="true"
 					className={[
 						"pointer-events-none absolute inset-0 overflow-hidden",
 						"p-4 font-mono text-[12px] leading-6",
-						"transition-opacity duration-150",
-						isReady && value.length > 0 ? "opacity-100" : "opacity-0",
 						// Strip Shiki's background so our bg-bg-input shows through
 						"[&_pre]:!bg-transparent [&_pre]:m-0 [&_pre]:leading-6 [&_pre]:font-mono [&_pre]:text-[12px]",
 					].join(" ")}
-					// biome-ignore lint/security/noDangerouslySetInnerHtml: trusted Shiki output
-					dangerouslySetInnerHTML={{ __html: highlightedHtml }}
-				/>
+				>
+					{highlightedHtml ? (
+						// biome-ignore lint/security/noDangerouslySetInnerHtml: trusted Shiki output
+						<div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
+					) : (
+						<span className="text-text-primary whitespace-pre">{value}</span>
+					)}
+				</div>
 
 				{/* Placeholder */}
 				{value.length === 0 && (

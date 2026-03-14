@@ -101,6 +101,13 @@ Note: `z.union` and `z.record` are not supported by the Gemini provider — avoi
 
 Both variants instruct the model to return valid JSON matching the schema, with 2–5 issues and a complete diff covering the most important improvement.
 
+The Zod schema enforces these counts to match the prompt instructions:
+
+```ts
+issues: z.array(z.object({ ... })).min(2).max(5),
+diffLines: z.array(z.object({ ... })).min(1),
+```
+
 **Gemini call:**
 
 ```ts
@@ -177,13 +184,20 @@ Rendered below the editor. Cleared on each new submit attempt.
 
 ### `submitCode` signature
 
+The existing stub must be **replaced entirely** — its current signature (single object arg, returns `Promise<string>`) is incompatible with the new design:
+
 ```ts
+// NEW signature — replace the stub completely
 export async function submitCode(
   code: string,
   language: string,
-  roastMode: boolean
+  roastMode: boolean  // boolean, NOT "roast" | "honest"
 ): Promise<{ id: string }>
 ```
+
+The `roastMode` parameter is a `boolean` on the client side (`true` = roast, `false` = honest). The action maps it to the DB enum internally (`roastMode ? "roast" : "honest"`).
+
+Required imports to add to `home-page-client.tsx`: `useTransition` from `react`, `useRouter` from `next/navigation`.
 
 ---
 
@@ -198,6 +212,7 @@ export async function submitCode(
 - `code.trim()` must be non-empty and ≤ 10,000 characters
 - `language` must be a non-empty string
 - Throw a descriptive `Error` if either check fails
+- Note: `language` values like `"plaintext"` are valid and stored verbatim in the `lang` column (rendered on the result page as-is)
 
 **2. Call Gemini**
 
@@ -280,9 +295,11 @@ if (!roast) notFound()
 
 ### Shape alignment
 
-- `score` is stored as `numeric` in Postgres — Drizzle returns it as a `string`. Cast with `Number(roast.score)` before passing to `<ScoreRing>`.
+- `score` is stored as `numeric` in Postgres — Drizzle returns it as a `string`. Cast with `Number(roast.score)` before passing to `<ScoreRing score={...} />` which expects `score: number`.
 - `lineCount` may be `null` if not set — use `roast.lineCount ?? roast.code.split("\n").length` as fallback.
+- `lang` is `varchar | null` — the insert always provides it so it will be non-null in practice; treat as `string` after the `notFound()` guard.
 - Remove `STATIC_ROAST` import and `void id` line.
+- The Drizzle `with: { issues, diffLines }` query returns full rows including `id` on each issue and diff line — these `id` fields are used as React keys in the existing render (`issue.id`, `line.id`) and will be present automatically from the DB result.
 
 ### Not found
 

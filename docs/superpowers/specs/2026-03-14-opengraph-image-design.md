@@ -57,13 +57,15 @@ Exact translation of the `leftSide` Pencil frame. Vertical flex column, centered
 
 ### Verdict Color Map
 
-| Verdict | Color | Token |
-|---|---|---|
-| `clean_code` | `#10B981` | accent-green |
-| `could_be_worse` | `#F59E0B` | accent-amber |
-| `needs_work` | `#F59E0B` | accent-amber |
-| `needs_serious_help` | `#EF4444` | accent-red |
-| `delete_this_now` | `#EF4444` | accent-red |
+Matches the existing `VERDICT_COLOR` semantic mapping in `src/db/roast.ts` (`good` → green, `warning` → amber, `critical` → red):
+
+| Verdict | Semantic | Color | Token |
+|---|---|---|---|
+| `clean_code` | good | `#10B981` | accent-green |
+| `could_be_worse` | good | `#10B981` | accent-green |
+| `needs_work` | warning | `#F59E0B` | accent-amber |
+| `needs_serious_help` | critical | `#EF4444` | accent-red |
+| `delete_this_now` | critical | `#EF4444` | accent-red |
 
 ## Fonts
 
@@ -97,7 +99,7 @@ The static `metadata` export in `src/app/roast/[id]/page.tsx` is replaced with `
 }
 ```
 
-Falls back to the original static metadata if the submission is not found.
+Falls back to the original static metadata if the submission is not found: `title: "Roast Result | DevRoast"`, `description: "See how your code was roasted."`.
 
 ## Caching
 

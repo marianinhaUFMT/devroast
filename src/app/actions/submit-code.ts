@@ -1,11 +1,13 @@
 "use server"
 
-import { google } from "@ai-sdk/google"
+import { createGroq } from "@ai-sdk/groq"
 import { generateText, Output } from "ai"
 
 import { db } from "@/db"
 import { submissionDiffLines, submissionIssues, submissions } from "@/db/schema"
 import { buildPrompt, roastSchema } from "@/lib/gemini"
+
+const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
 
 const CODE_MAX_LENGTH = 10_000
 
@@ -27,7 +29,7 @@ export async function submitCode(
 
 	// ── 2. Call Gemini ────────────────────────────────────────────────────
 	const { output } = await generateText({
-		model: google("gemini-2.0-flash"),
+		model: groq("llama-3.3-70b-versatile"),
 		output: Output.object({ schema: roastSchema }),
 		prompt: buildPrompt(code, language, roastMode),
 	})

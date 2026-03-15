@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm"
 import type { Metadata, ResolvingMetadata } from "next"
+import Image from "next/image"
 import { notFound } from "next/navigation"
 import { connection } from "next/server"
 
@@ -58,10 +59,12 @@ export default async function SharePage({ params }: Props) {
 
 			{/* ── OG Image Preview ────────────────────────────────────────────── */}
 			<section className="flex flex-col gap-6">
-				<img
+				<Image
 					src={`/roast/${id}/opengraph-image`}
 					alt="Roast result preview"
-					className="aspect-[1200/630] w-full border border-border-primary"
+					width={1200}
+					height={630}
+					className="w-full border border-border-primary"
 				/>
 
 				{/* Twitter share button */}

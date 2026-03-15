@@ -39,10 +39,6 @@ export async function generateMetadata(
 	return {
 		title: `${score}/10 — ${VERDICT_LABEL[roast.verdict]} | DevRoast`,
 		description: roast.roastQuote,
-		openGraph: {
-			type: "website",
-			images: [], // Next.js auto-wires opengraph-image.tsx
-		},
 		twitter: {
 			card: "summary_large_image",
 		},

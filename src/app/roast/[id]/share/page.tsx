@@ -27,6 +27,13 @@ export async function generateMetadata(
 	return {
 		title: "Share Your Roast | DevRoast",
 		description: roast?.roastQuote ?? "Share your roast results.",
+		openGraph: {
+			images: [`https://devroast.com/roast/${id}/opengraph-image`],
+		},
+		twitter: {
+			card: "summary_large_image",
+			images: [`https://devroast.com/roast/${id}/opengraph-image`],
+		},
 	}
 }
 

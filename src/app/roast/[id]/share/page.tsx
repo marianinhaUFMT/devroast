@@ -12,6 +12,8 @@ type Props = {
 	params: Promise<{ id: string }>
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://devroast.com"
+
 export async function generateMetadata(
 	{ params }: Props,
 	_parent: ResolvingMetadata
@@ -28,11 +30,11 @@ export async function generateMetadata(
 		title: "Share Your Roast | DevRoast",
 		description: roast?.roastQuote ?? "Share your roast results.",
 		openGraph: {
-			images: [`https://devroast.com/roast/${id}/opengraph-image`],
+			images: [`${baseUrl}/roast/${id}/opengraph-image`],
 		},
 		twitter: {
 			card: "summary_large_image",
-			images: [`https://devroast.com/roast/${id}/opengraph-image`],
+			images: [`${baseUrl}/roast/${id}/opengraph-image`],
 		},
 	}
 }
@@ -51,7 +53,7 @@ export default async function SharePage({ params }: Props) {
 	const score = Number(roast.score).toFixed(1)
 	const verdictLabel = VERDICT_LABEL[roast.verdict]
 
-	const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(`https://devroast.com/roast/${id}/share`)}&text=${encodeURIComponent(`I got ${score}/10 on DevRoast — ${verdictLabel}`)}`
+	const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(`${baseUrl}/roast/${id}/share`)}&text=${encodeURIComponent(`I got ${score}/10 on DevRoast — ${verdictLabel}`)}`
 
 	return (
 		<main className="mx-auto w-full max-w-[960px] px-20 py-10">

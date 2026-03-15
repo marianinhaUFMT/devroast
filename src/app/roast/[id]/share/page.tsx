@@ -44,7 +44,7 @@ export default async function SharePage({ params }: Props) {
 	const score = Number(roast.score).toFixed(1)
 	const verdictLabel = VERDICT_LABEL[roast.verdict]
 
-	const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(`https://devroast.com/roast/${id}`)}&text=${encodeURIComponent(`I got ${score}/10 on DevRoast — ${verdictLabel}`)}`
+	const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(`https://devroast.com/roast/${id}/share`)}&text=${encodeURIComponent(`I got ${score}/10 on DevRoast — ${verdictLabel}`)}`
 
 	return (
 		<main className="mx-auto w-full max-w-[960px] px-20 py-10">

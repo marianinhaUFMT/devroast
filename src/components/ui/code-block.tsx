@@ -27,6 +27,7 @@ type CodeBlockBodyProps = {
 }
 
 export async function CodeBlockBody({ code, lang = "text", className }: CodeBlockBodyProps) {
+	"use cache"
 	const trimmed = code.trimEnd()
 	const highlighted = await codeToHtml(trimmed, { lang, theme: "vesper" })
 	const lineCount = trimmed.split("\n").length

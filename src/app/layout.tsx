@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import "./globals.css"
 
 import { NavbarActions, NavbarLogo, NavbarRoot, NavLink } from "@/components/ui/navbar"
@@ -17,15 +18,17 @@ export default function RootLayout({
 	return (
 		<html lang="pt-BR">
 			<body>
-				<TRPCReactProvider>
-					<NavbarRoot>
-						<NavbarLogo />
-						<NavbarActions>
-							<NavLink href="/leaderboard">leaderboard</NavLink>
-						</NavbarActions>
-					</NavbarRoot>
-					{children}
-				</TRPCReactProvider>
+				<Suspense>
+					<TRPCReactProvider>
+						<NavbarRoot>
+							<NavbarLogo />
+							<NavbarActions>
+								<NavLink href="/leaderboard">leaderboard</NavLink>
+							</NavbarActions>
+						</NavbarRoot>
+						{children}
+					</TRPCReactProvider>
+				</Suspense>
 			</body>
 		</html>
 	)

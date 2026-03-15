@@ -20,6 +20,7 @@ export async function generateMetadata(
 	_parent: ResolvingMetadata
 ): Promise<Metadata> {
 	const { id } = await params
+	await connection()
 
 	const roast = await db.query.submissions.findFirst({
 		where: eq(submissions.id, id),

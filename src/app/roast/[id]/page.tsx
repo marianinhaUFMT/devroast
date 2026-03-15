@@ -1,5 +1,5 @@
 import { asc, eq } from "drizzle-orm"
-import type { Metadata } from "next"
+import type { Metadata, ResolvingMetadata } from "next"
 import { notFound } from "next/navigation"
 import { connection } from "next/server"
 
@@ -11,13 +11,41 @@ import { db } from "@/db"
 import { VERDICT_COLOR, VERDICT_LABEL } from "@/db/roast"
 import { submissionDiffLines, submissionIssues, submissions } from "@/db/schema"
 
-export const metadata: Metadata = {
-	title: "Roast Result | DevRoast",
-	description: "See how your code was roasted.",
-}
-
 type Props = {
 	params: Promise<{ id: string }>
+}
+
+export async function generateMetadata(
+	{ params }: Props,
+	_parent: ResolvingMetadata
+): Promise<Metadata> {
+	const { id } = await params
+
+	const roast = await db.query.submissions.findFirst({
+		where: eq(submissions.id, id),
+		columns: { score: true, verdict: true, roastQuote: true },
+	})
+
+	if (!roast) {
+		return {
+			title: "Roast Result | DevRoast",
+			description: "See how your code was roasted.",
+		}
+	}
+
+	const score = Number(roast.score).toFixed(1)
+
+	return {
+		title: `${score}/10 — ${VERDICT_LABEL[roast.verdict]} | DevRoast`,
+		description: roast.roastQuote,
+		openGraph: {
+			type: "website",
+			images: [], // Next.js auto-wires opengraph-image.tsx
+		},
+		twitter: {
+			card: "summary_large_image",
+		},
+	}
 }
 
 export default async function RoastPage({ params }: Props) {

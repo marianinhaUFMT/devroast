@@ -147,17 +147,89 @@ export function detectLanguage(code: string): DetectionResult {
 		return { language: "dockerfile", confidence: "high" }
 	}
 
-	// TypeScript — import + type annotations OR TypeScript-specific syntax
+	// C# — must come before generic C/C++ checks
 	if (
-		(/\bimport\s+.*\s+from\s+['"]/.test(trimmed) || /\brequire\s*\(/.test(trimmed)) &&
-		(/:\s*(string|number|boolean|void|never|unknown|any)\b/.test(trimmed) ||
-			/\binterface\s+\w+\s*\{/.test(trimmed) ||
-			/\btype\s+\w+\s*=/.test(trimmed) ||
-			/<[A-Z]\w*>/.test(trimmed))
+		/\busing\s+System/.test(trimmed) ||
+		(/\bnamespace\s+\w+/.test(trimmed) && /\bclass\s+\w+/.test(trimmed)) ||
+		/\bConsole\.(Write|Read)/.test(trimmed)
+	) {
+		return { language: "csharp", confidence: "high" }
+	}
+
+	// C++ — must come before plain C check
+	if (
+		/#include\s*<(iostream|vector|string|map|algorithm|memory)>/.test(trimmed) ||
+		/\bstd::/.test(trimmed) ||
+		(/\bclass\s+\w+/.test(trimmed) && /\bpublic:|private:|protected:/.test(trimmed)) ||
+		/\bcout\s*<</.test(trimmed)
+	) {
+		return { language: "cpp", confidence: "high" }
+	}
+	if (/#include\s*<\w+>/.test(trimmed) && /\btemplate\s*</.test(trimmed)) {
+		return { language: "cpp", confidence: "medium" }
+	}
+
+	// C
+	if (
+		/#include\s*<(stdio|stdlib|string|math|time)\.h>/.test(trimmed) ||
+		(/\bint\s+main\s*\(/.test(trimmed) && /\breturn\s+0\s*;/.test(trimmed))
+	) {
+		return { language: "c", confidence: "high" }
+	}
+	if (/#include\s*[<"]/.test(trimmed) && /\bprintf\s*\(|\bscanf\s*\(/.test(trimmed)) {
+		return { language: "c", confidence: "medium" }
+	}
+
+	// PHP
+	if (/<\?php/.test(trimmed)) {
+		return { language: "php", confidence: "high" }
+	}
+	if (/\$\w+\s*=/.test(trimmed) && /\becho\s+/.test(trimmed)) {
+		return { language: "php", confidence: "medium" }
+	}
+
+	// Ruby
+	if (
+		/^#\s*frozen_string_literal/m.test(trimmed) ||
+		(/\bdef\s+\w+/.test(trimmed) && /\bend\b/.test(trimmed) && !/\bfunction\b/.test(trimmed)) ||
+		/\battr_(accessor|reader|writer)\s+/.test(trimmed) ||
+		/\.each\s+do\s*\|/.test(trimmed)
+	) {
+		return { language: "ruby", confidence: "high" }
+	}
+	if (/\bputs\s+/.test(trimmed) && /\bend\b/.test(trimmed)) {
+		return { language: "ruby", confidence: "medium" }
+	}
+
+	// Swift
+	if (
+		/\bimport\s+(Foundation|UIKit|SwiftUI|Combine)\b/.test(trimmed) ||
+		(/\bvar\s+\w+\s*:\s*\w+/.test(trimmed) && /\bfunc\s+\w+\s*\(/.test(trimmed)) ||
+		/\bguard\s+let\b|\bif\s+let\b/.test(trimmed)
+	) {
+		return { language: "swift", confidence: "high" }
+	}
+
+	// Dart
+	if (
+		(/\bvoid\s+main\s*\(\s*\)/.test(trimmed) && /\bprint\s*\(/.test(trimmed)) ||
+		/\bimport\s+'package:/.test(trimmed) ||
+		/\bfinal\s+\w+\s*=\s*<\w+>\[/.test(trimmed)
+	) {
+		return { language: "dart", confidence: "high" }
+	}
+
+	// TypeScript — must come before JavaScript
+	if (
+		/\binterface\s+\w+\s*\{/.test(trimmed) ||
+		/\btype\s+\w+\s*=/.test(trimmed) ||
+		/:\s*(string|number|boolean|void|never|unknown|any)\b/.test(trimmed) ||
+		/<[A-Z]\w*>/.test(trimmed) ||
+		/\benum\s+\w+\s*\{/.test(trimmed)
 	) {
 		return { language: "typescript", confidence: "high" }
 	}
-	if (/\binterface\s+\w+\s*\{|\btype\s+\w+\s*=|\bconst\s+\w+:\s+\w+\s*=/.test(trimmed)) {
+	if (/\bconst\s+\w+:\s+\w+\s*=/.test(trimmed)) {
 		return { language: "typescript", confidence: "medium" }
 	}
 

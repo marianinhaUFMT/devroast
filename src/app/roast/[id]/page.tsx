@@ -1,5 +1,6 @@
 import { asc, eq } from "drizzle-orm"
 import type { Metadata, ResolvingMetadata } from "next"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { connection } from "next/server"
 
@@ -95,12 +96,12 @@ export default async function RoastPage({ params }: Props) {
 
 					{/* Share button */}
 					<div>
-						<button
-							type="button"
-							className="inline-flex items-center gap-2 border border-border-primary px-4 py-2 font-mono text-xs text-text-primary transition-colors enabled:hover:border-accent-green enabled:hover:text-accent-green"
+						<Link
+							href={`/roast/${id}/share`}
+							className="inline-flex items-center gap-2 border border-border-primary px-4 py-2 font-mono text-xs text-text-primary transition-colors hover:border-accent-green hover:text-accent-green"
 						>
 							$ share_roast
-						</button>
+						</Link>
 					</div>
 				</div>
 			</section>

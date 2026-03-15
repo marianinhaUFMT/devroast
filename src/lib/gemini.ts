@@ -53,20 +53,13 @@ ${code}
 \`\`\`
 
 Respond with a JSON object matching this exact shape:
-- score: number 0–10 (decimals allowed, e.g. 6.5). Use the FULL range — most real code falls between 3 and 8. Scoring rubric:
-    0–1: completely broken, does not run, dangerous
-    2–3: major structural problems, bad practices throughout
-    4–5: works but has significant issues — unclear naming, poor structure, missing error handling
-    6–7: decent code with some issues — minor smells, could be more idiomatic
-    8–9: good code, minor nits only
-    10: flawless, nothing to improve
-  Avoid defaulting to 0, 2, or 10. Use decimal precision to reflect nuance.
-- verdict: pick based on score:
-    0–2 → "delete_this_now"
-    3–4 → "needs_serious_help"
-    5–6 → "needs_work"
-    7–8 → "could_be_worse"
-    9–10 → "clean_code"
+- score: number 0–10 (decimals like 3.5 or 7.0 are encouraged). Score as a strict senior engineer would — most production code scores 5–7, only truly clean code reaches 8+, and only genuinely broken or dangerous code scores below 3. Do NOT default to 4 or 5 just to be safe. If the code is good, score it high. If it's bad, score it low.
+- verdict: your honest assessment of the overall code quality, independent of the score:
+    "clean_code" — well-structured, idiomatic, easy to maintain
+    "could_be_worse" — functional with some rough edges
+    "needs_work" — works but has clear problems worth fixing
+    "needs_serious_help" — multiple significant issues, risky to ship
+    "delete_this_now" — fundamentally broken, dangerous, or unsalvageable
 - roastQuote: string (see persona instructions below)
 - issues: array of 2–5 objects, each with:
     - severity: "critical" | "warning" | "good"
